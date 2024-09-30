@@ -7,12 +7,16 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 const Page = () => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [mainTask, setMainTask] = useState(() => {
-    // Retrieve tasks from localStorage if available
-    const savedTasks = localStorage.getItem("tasks");
-    return savedTasks ? JSON.parse(savedTasks) : [];
-  });
+  const [mainTask, setMainTask] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
+
+  // Load tasks from localStorage on the client side
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+      setMainTask(JSON.parse(savedTasks));
+    }
+  }, []);
 
   // Save tasks to localStorage whenever mainTask changes
   useEffect(() => {
@@ -22,7 +26,7 @@ const Page = () => {
   const submitHandler = (e) => {
     e.preventDefault();
     if (title && desc) {
-      setMainTask([...mainTask, { title, desc, completed: false }]); // Adding completed state
+      setMainTask([...mainTask, { title, desc, completed: false }]);
       setTitle("");
       setDesc("");
     }
@@ -66,61 +70,62 @@ const Page = () => {
               ref={provided.innerRef}
             >
               {mainTask.map((t, i) => (
-                <Draggable key={i} draggableId={t.title + i} index={i}>
+                <Draggable key={t.title + t.desc + i} draggableId={t.title + i} index={i}>
                   {(provided) => (
-                   <li
-                   className={`flex items-center justify-between p-4 ${
-                     t.completed ? "bg-green-200" : "bg-gray-100"
-                   } dark:bg-gray-800 rounded-lg shadow-md mb-2 transition-transform duration-200 ease-in-out`}
-                   {...provided.draggableProps}
-                   {...provided.dragHandleProps}
-                   ref={provided.innerRef}
-                 >
-                   <div>
-                     <h5
-                       className={`font-bold text-lg ${
-                         t.completed
-                           ? "text-gray-500 line-through dark:text-gray-400"
-                           : "text-black dark:text-white"
-                       }`}
-                     >
-                       {t.title}
-                     </h5>
-                     <h6
-                       className={`font-semibold ${
-                         t.completed
-                           ? "text-gray-400 line-through"
-                           : "text-gray-700 dark:text-gray-300"
-                       }`}
-                     >
-                       {t.desc}
-                     </h6>
-                   </div>
-                 
-                   {/* Right-aligned Buttons */}
-                   <div className="ml-auto flex space-x-2">
-                     {/* Complete Task Button */}
-                     <button
-                       onClick={() => completeHandler(i)}
-                       className="bg-green-500 text-white font-semibold py-2 px-4 border border-green-600
-                       rounded-lg hover:bg-green-600 active:bg-green-700 focus:outline-none focus:ring-2
-                       focus:ring-green-300 focus:ring-opacity-50 transition-all duration-300 ease-in-out"
-                     >
-                       {t.completed ? "Undo" : "Complete"}
-                     </button>
-                 
-                     {/* Delete Button */}
-                     <button
-                       onClick={() => deleteHandler(i)}
-                       className="bg-red-500 text-white font-semibold py-2 px-4 border border-red-600
-                       rounded-lg hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2
-                       focus:ring-red-300 focus:ring-opacity-50 transition-all duration-300 ease-in-out"
-                     >
-                       Delete
-                     </button>
-                   </div>
-                 </li>
-                 
+                    <li
+                      className={`flex items-center justify-between p-4 ${
+                        t.completed ? "bg-green-200" : "bg-gray-100"
+                      } dark:bg-gray-800 rounded-lg shadow-md mb-2 transition-transform duration-200 ease-in-out`}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      ref={provided.innerRef}
+                    >
+                      <div>
+                        <h5
+                          className={`font-bold text-lg ${
+                            t.completed
+                              ? "text-gray-500 line-through dark:text-gray-400"
+                              : "text-black dark:text-white"
+                          }`}
+                        >
+                          {t.title}
+                        </h5>
+                        <h6
+                          className={`font-semibold ${
+                            t.completed
+                              ? "text-gray-400 line-through"
+                              : "text-gray-700 dark:text-gray-300"
+                          }`}
+                        >
+                          {t.desc}
+                        </h6>
+                      </div>
+
+                      {/* Right-aligned Buttons */}
+                      <div className="ml-auto flex space-x-2">
+                        {/* Complete Task Button */}
+                        <button
+                          onClick={() => completeHandler(i)}
+                          aria-label={t.completed ? "Undo task" : "Complete task"}
+                          className="bg-green-500 text-white font-semibold py-2 px-4 border border-green-600
+                          rounded-lg hover:bg-green-600 active:bg-green-700 focus:outline-none focus:ring-2
+                          focus:ring-green-300 focus:ring-opacity-50 transition-all duration-300 ease-in-out"
+                        >
+                          {t.completed ? "Undo" : "Complete"}
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => deleteHandler(i)}
+                          aria-label="Delete task"
+                          className="bg-red-500 text-white font-semibold py-2 px-4 border border-red-600
+                          rounded-lg hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2
+                          focus:ring-red-300 focus:ring-opacity-50 transition-all duration-300 ease-in-out"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
                   )}
                 </Draggable>
               ))}
@@ -137,9 +142,9 @@ const Page = () => {
       <div className="min-h-screen bg-white dark:bg-gray-700 transition-colors duration-500">
         {/* Header */}
         <header className="flex justify-between items-center bg-slate-600 p-5">
-        <div className="flex-1 text-center">
-    <h1 className="text-3xl font-bold text-white">Task Manager</h1>
-  </div>
+          <div className="flex-1 text-center">
+            <h1 className="text-3xl font-bold text-white">Task Manager</h1>
+          </div>
           <button
             onClick={() => setDarkMode(!darkMode)}
             className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white font-semibold py-2 px-4 border border-gray-300
