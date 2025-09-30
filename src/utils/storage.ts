@@ -1,5 +1,5 @@
 // Centralized localStorage helpers for tasks
-import { Task, TaskStats } from '../types/task';
+import { Task, TaskStats, TaskPriority, TaskStatus, Subtask } from '../types/task';
 
 const STORAGE_KEY = 'todo-tasks';
 const SETTINGS_KEY = 'todo-settings';
@@ -18,12 +18,22 @@ export function loadTasks(): Task[] {
     const tasks = data ? JSON.parse(data) : [];
     
     // Migrate old tasks to new format
-    return tasks.map((task: any) => ({
-      ...task,
-      createdAt: task.createdAt || new Date().toISOString(),
-      updatedAt: task.updatedAt || new Date().toISOString(),
-      subtasks: task.subtasks || [],
-    }));
+    return tasks.map((task: Record<string, unknown>) => ({
+      id: task.id as string || crypto.randomUUID(),
+      title: task.title as string || 'Untitled',
+      description: task.description as string || '',
+      dueDate: task.dueDate as string || new Date().toISOString(),
+      priority: (task.priority as TaskPriority) || 'medium',
+      status: (task.status as TaskStatus) || 'pending',
+      tags: (task.tags as string[]) || [],
+      order: (task.order as number) || 0,
+      createdAt: (task.createdAt as string) || new Date().toISOString(),
+      updatedAt: (task.updatedAt as string) || new Date().toISOString(),
+      subtasks: (task.subtasks as Subtask[]) || [],
+      completedAt: task.completedAt as string | undefined,
+      estimatedTime: task.estimatedTime as number | undefined,
+      actualTime: task.actualTime as number | undefined,
+    }) as Task);
   } catch {
     return [];
   }
@@ -113,14 +123,24 @@ export function importTasks(jsonString: string): Task[] {
   try {
     const imported = JSON.parse(jsonString);
     if (Array.isArray(imported)) {
-      return imported.map((task: any) => ({
-        ...task,
-        createdAt: task.createdAt || new Date().toISOString(),
-        updatedAt: task.updatedAt || new Date().toISOString(),
-        subtasks: task.subtasks || [],
-      }));
+      return imported.map((task: Record<string, unknown>) => ({
+        id: task.id as string || crypto.randomUUID(),
+        title: task.title as string || 'Untitled',
+        description: task.description as string || '',
+        dueDate: task.dueDate as string || new Date().toISOString(),
+        priority: (task.priority as TaskPriority) || 'medium',
+        status: (task.status as TaskStatus) || 'pending',
+        tags: (task.tags as string[]) || [],
+        order: (task.order as number) || 0,
+        createdAt: (task.createdAt as string) || new Date().toISOString(),
+        updatedAt: (task.updatedAt as string) || new Date().toISOString(),
+        subtasks: (task.subtasks as Subtask[]) || [],
+        completedAt: task.completedAt as string | undefined,
+        estimatedTime: task.estimatedTime as number | undefined,
+        actualTime: task.actualTime as number | undefined,
+      }) as Task);
     }
-  } catch (error) {
+  } catch {
     throw new Error('Invalid JSON format');
   }
   throw new Error('Data is not an array of tasks');

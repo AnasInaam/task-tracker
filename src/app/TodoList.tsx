@@ -47,7 +47,7 @@ export default function TodoList() {
     if (settings.darkMode) {
       document.documentElement.classList.add('dark');
     }
-  }, []);
+  }, [settings.darkMode]);
 
   const stats = getTaskStats(tasks);
   const filteredTasks = getFilteredSortedTasks(tasks, filter);

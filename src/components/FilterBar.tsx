@@ -1,15 +1,9 @@
 "use client";
-import { TaskPriority, TaskStatus } from "../types/task";
+import { TaskPriority, TaskStatus, TaskFilter } from "../types/task";
 
 interface FilterBarProps {
-  filter: {
-    search?: string;
-    priority?: TaskPriority;
-    status?: TaskStatus;
-    tag?: string;
-    sortBy?: string;
-  };
-  onFilterChange: (filter: any) => void;
+  filter: TaskFilter;
+  onFilterChange: (filter: TaskFilter) => void;
   onAddTask: () => void;
   darkMode: boolean;
   onToggleDarkMode: () => void;
@@ -105,7 +99,7 @@ export default function FilterBar({
           <select
             className="px-4 py-3 rounded-xl border border-gray-200/60 dark:border-gray-600/60 bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all backdrop-blur-sm"
             value={filter.priority || ""}
-            onChange={(e) => onFilterChange({ ...filter, priority: e.target.value || undefined })}
+            onChange={(e) => onFilterChange({ ...filter, priority: (e.target.value as TaskPriority) || undefined })}
           >
             <option value="">All Priorities</option>
             {priorities.map(priority => (
@@ -119,7 +113,7 @@ export default function FilterBar({
           <select
             className="px-4 py-3 rounded-xl border border-gray-200/60 dark:border-gray-600/60 bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all backdrop-blur-sm"
             value={filter.status || ""}
-            onChange={(e) => onFilterChange({ ...filter, status: e.target.value || undefined })}
+            onChange={(e) => onFilterChange({ ...filter, status: (e.target.value as TaskStatus) || undefined })}
           >
             <option value="">All Statuses</option>
             {statuses.map(status => (
@@ -142,7 +136,7 @@ export default function FilterBar({
           <select
             className="px-4 py-3 rounded-xl border border-gray-200/60 dark:border-gray-600/60 bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all backdrop-blur-sm"
             value={filter.sortBy || ""}
-            onChange={(e) => onFilterChange({ ...filter, sortBy: e.target.value || undefined })}
+            onChange={(e) => onFilterChange({ ...filter, sortBy: (e.target.value as TaskFilter['sortBy']) || undefined })}
           >
             <option value="">Sort: Custom</option>
             <option value="dueDate">📅 Due Date</option>
